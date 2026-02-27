@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import ParticlesBg from './ParticlesBg'
+import { useAuth } from '../context/AuthContext'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL
 
 export default function AdminPanel() {
+    const { authHeaders, logout } = useAuth()
     const [categories, setCategories] = useState([])
     const [questions, setQuestions] = useState([])
     const [loading, setLoading] = useState(true)
@@ -27,22 +29,21 @@ export default function AdminPanel() {
     const fetchData = () => {
         setLoading(true)
         Promise.all([
-            fetch(API_BASE_URL + "/categories").then(r => r.json()),
-            fetch(API_BASE_URL + "/questions").then(r => r.json())
+            fetch(API_BASE_URL + "/categories", { headers: authHeaders() }).then(r => r.json()),
+            fetch(API_BASE_URL + "/questions", { headers: authHeaders() }).then(r => r.json())
         ]).then(([cats, qs]) => {
-            setCategories(cats.sort((a, b) => a.name.localeCompare(b.name)))
-            setQuestions(qs)
+            setCategories(Array.isArray(cats) ? cats.sort((a, b) => a.name.localeCompare(b.name)) : [])
+            setQuestions(Array.isArray(qs) ? qs : [])
             setLoading(false)
         })
     }
 
     const addCategory = () => {
-        if (!newCategoryName.trim())
-            return
+        if (!newCategoryName.trim()) return
 
         fetch(API_BASE_URL + "/categories", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: authHeaders(),
             body: JSON.stringify({ name: newCategoryName.trim() })
         })
             .then(r => r.json())
@@ -53,13 +54,14 @@ export default function AdminPanel() {
     }
 
     const deleteCategory = (id, name) => {
-        if (!window.confirm(`Delete "${name}" and all its questions?`))
-            return
+        if (!window.confirm(`Delete "${name}" and all its questions?`)) return
 
-        fetch(API_BASE_URL + "/categories/" + id, { method: "DELETE" })
+        fetch(API_BASE_URL + "/categories/" + id, {
+            method: "DELETE",
+            headers: authHeaders()
+        })
             .then(() => {
-                if (selectedCategory === id)
-                    setSelectedCategory(null)
+                if (selectedCategory === id) setSelectedCategory(null)
                 fetchData()
             })
     }
@@ -74,12 +76,8 @@ export default function AdminPanel() {
 
         fetch(API_BASE_URL + "/categories/" + id, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                name: editCategoryName.trim()
-            })
+            headers: authHeaders(),
+            body: JSON.stringify({ name: editCategoryName.trim() })
         })
             .then(r => r.json())
             .then(() => {
@@ -89,12 +87,11 @@ export default function AdminPanel() {
     }
 
     const addQuestion = () => {
-        if (!newQuestion.category_id || !newQuestion.question.trim() || !newQuestion.answer.trim())
-            return
+        if (!newQuestion.category_id || !newQuestion.question.trim() || !newQuestion.answer.trim()) return
 
         fetch(API_BASE_URL + "/questions", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: authHeaders(),
             body: JSON.stringify({
                 ...newQuestion,
                 category_id: Number(newQuestion.category_id),
@@ -104,22 +101,18 @@ export default function AdminPanel() {
         })
             .then(r => r.json())
             .then(() => {
-                setNewQuestion({
-                    category_id: "",
-                    difficulty: 100,
-                    question: "",
-                    answer: "",
-                    time_limit: 30
-                })
+                setNewQuestion({ category_id: "", difficulty: 100, question: "", answer: "", time_limit: 30 })
                 fetchData()
             })
     }
 
     const deleteQuestion = (id) => {
-        if (!window.confirm("Delete this question?"))
-            return
+        if (!window.confirm("Delete this question?")) return
 
-        fetch(API_BASE_URL + "/questions/" + id, { method: "DELETE" })
+        fetch(API_BASE_URL + "/questions/" + id, {
+            method: "DELETE",
+            headers: authHeaders()
+        })
             .then(() => fetchData())
     }
 
@@ -131,7 +124,6 @@ export default function AdminPanel() {
             return
         }
 
-        // Skip API call if nothing changed
         if (
             editQuestionData.question.trim() === original.question &&
             editQuestionData.answer.trim() === original.answer &&
@@ -144,9 +136,7 @@ export default function AdminPanel() {
 
         fetch(API_BASE_URL + "/questions/" + id, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: authHeaders(),
             body: JSON.stringify({
                 question: editQuestionData.question.trim(),
                 answer: editQuestionData.answer.trim(),
@@ -160,8 +150,6 @@ export default function AdminPanel() {
                 fetchData()
             })
     }
-
-
 
     if (loading) return <div style={{ color: "#06b6d4", padding: 40, fontFamily: "monospace" }}>Loading...</div>
 
@@ -177,7 +165,25 @@ export default function AdminPanel() {
 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
                     <h1 className="gradient-text" style={{ fontSize: 32, fontWeight: 900, background: "linear-gradient(135deg,#06b6d4,#8b5cf6)" }}>ADMIN PANEL</h1>
-                    <a href="/" className="admin-link">← Back to Game</a>
+                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                        <a href="/" className="admin-link">← Back to Game</a>
+                        <button
+                            onClick={logout}
+                            style={{
+                                padding: "8px 16px",
+                                background: "rgba(239,68,68,0.1)",
+                                border: "1px solid rgba(239,68,68,0.3)",
+                                borderRadius: 8,
+                                color: "#ef4444",
+                                cursor: "pointer",
+                                fontFamily: "monospace",
+                                fontSize: 12,
+                                fontWeight: 700
+                            }}
+                        >
+                            LOGOUT
+                        </button>
+                    </div>
                 </div>
 
                 {/* ── CATEGORIES ── */}
@@ -205,8 +211,8 @@ export default function AdminPanel() {
                                     background: "#1e293b",
                                     border: "1px solid #334155",
                                     transition: "all 0.15s",
-                                    flexWrap:"wrap",
-                                    gap:8
+                                    flexWrap: "wrap",
+                                    gap: 8
                                 }}
                             >
                                 <div style={{ display: "flex", alignItems: "center", flex: 1, gap: 10 }}>
@@ -231,28 +237,16 @@ export default function AdminPanel() {
                                 <div style={{ display: "flex", gap: 6 }}>
                                     {editingCategory === cat.id ? (
                                         <>
-                                            <button onClick={() => updateCategory(cat.id)}
-                                                className='btn-save'>
-                                                SAVE
-                                            </button>
-                                            <button onClick={() => setEditingCategory(null)}
-                                                className='btn-cancel'>
-                                                CANCEL
-                                            </button>
+                                            <button onClick={() => updateCategory(cat.id)} className='btn-save'>SAVE</button>
+                                            <button onClick={() => setEditingCategory(null)} className='btn-cancel'>CANCEL</button>
                                         </>
                                     ) : (
                                         <>
                                             <button onMouseDown={(e) => {
                                                 e.preventDefault()
                                                 setTimeout(() => { setEditingCategory(cat.id); setEditCategoryName(cat.name) }, 0)
-                                            }}
-                                                className="btn-edit">
-                                                EDIT
-                                            </button>
-                                            <button onClick={() => deleteCategory(cat.id, cat.name)}
-                                                className="btn-delete">
-                                                DELETE
-                                            </button>
+                                            }} className="btn-edit">EDIT</button>
+                                            <button onClick={() => deleteCategory(cat.id, cat.name)} className="btn-delete">DELETE</button>
                                         </>
                                     )}
                                 </div>
@@ -264,8 +258,8 @@ export default function AdminPanel() {
                 {/* ── QUESTIONS ── */}
                 <div style={{ background: "#0f172a", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 12, padding: 20, overflow: "hidden" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 8 }}>
-    <h2 style={{ fontSize: 16, fontWeight: 700, color: "#8b5cf6" }}>QUESTIONS</h2>
-    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                        <h2 style={{ fontSize: 16, fontWeight: 700, color: "#8b5cf6" }}>QUESTIONS</h2>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                             <label style={{ color: "#475569", fontSize: 11 }}>FILTER:</label>
                             <select
                                 value={selectedCategory || ""}
@@ -417,14 +411,8 @@ export default function AdminPanel() {
                                                                     />
                                                                 </div>
                                                                 <div style={{ display: "flex", gap: 6 }}>
-                                                                    <button onClick={() => updateQuestion(q.id)}
-                                                                        className='btn-save'>
-                                                                        SAVE
-                                                                    </button>
-                                                                    <button onClick={() => setEditingQuestion(null)}
-                                                                        className='btn-cancel'>
-                                                                        CANCEL
-                                                                    </button>
+                                                                    <button onClick={() => updateQuestion(q.id)} className='btn-save'>SAVE</button>
+                                                                    <button onClick={() => setEditingQuestion(null)} className='btn-cancel'>CANCEL</button>
                                                                 </div>
                                                             </>
                                                         ) : (
@@ -434,24 +422,16 @@ export default function AdminPanel() {
                                                                         ${q.difficulty} • {q.time_limit}s
                                                                     </span>
                                                                     <div style={{ display: "flex", gap: 4 }}>
-                                                                        <button
-                                                                            className='btn-edit'
-                                                                            onClick={() => {
-                                                                                setEditingQuestion(q.id)
-                                                                                setEditQuestionData({
-                                                                                    difficulty: q.difficulty,
-                                                                                    question: q.question,
-                                                                                    answer: q.answer,
-                                                                                    time_limit: q.time_limit
-                                                                                })
-                                                                            }}>
-                                                                            EDIT
-                                                                        </button>
-                                                                        <button
-                                                                            onClick={() => deleteQuestion(q.id)}
-                                                                            className="btn-delete">
-                                                                            DELETE
-                                                                        </button>
+                                                                        <button className='btn-edit' onClick={() => {
+                                                                            setEditingQuestion(q.id)
+                                                                            setEditQuestionData({
+                                                                                difficulty: q.difficulty,
+                                                                                question: q.question,
+                                                                                answer: q.answer,
+                                                                                time_limit: q.time_limit
+                                                                            })
+                                                                        }}>EDIT</button>
+                                                                        <button onClick={() => deleteQuestion(q.id)} className="btn-delete">DELETE</button>
                                                                     </div>
                                                                 </div>
                                                                 <div style={{ color: "#e2e8f0", fontSize: 13, marginBottom: 4 }}>{q.question}</div>
