@@ -5,6 +5,9 @@
 #   2. Backend API (Node.js + Express)
 #   3. Frontend (React + Vite static site)
 #
+# After first deploy, manually set:
+#   - FRONTEND_URL on jeopardy-api  → your frontend's Render URL
+#   - VITE_API_URL on jeopardy-client → your backend's Render URL
 #
 # Docs: https://docs.render.com/blueprint-spec
 
@@ -31,16 +34,13 @@ services:
       - key: PORT
         value: "10000"
       - key: JWT_SECRET
-        generateValue: true   # Render auto-generates a secure random string
+        generateValue: true
       - key: DATABASE_URL
         fromDatabase:
           name: jeopardy-db
           property: connectionString
       - key: FRONTEND_URL
-        fromService:
-          name: jeopardy-client
-          type: web
-          property: url
+        sync: false
 
   # ─── Frontend Static Site ───────────────────────────────────────
   - type: web
@@ -57,10 +57,7 @@ services:
     routes:
       - type: rewrite
         source: /*
-        destination: /index.html    # SPA client-side routing support
+        destination: /index.html
     envVars:
       - key: VITE_API_URL
-        fromService:
-          name: jeopardy-api
-          type: web
-          property: url
+        sync: false
