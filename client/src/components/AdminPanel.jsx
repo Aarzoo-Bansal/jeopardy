@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import ParticlesBg from './ParticlesBg'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom';
+import CustomSelect from './CustomSelect';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL
 
@@ -26,17 +27,17 @@ export default function AdminPanel() {
     const [editingQuestion, setEditingQuestion] = useState(null)
     const [editQuestionData, setEditQuestionData] = useState({})
 
-    useEffect(() => { fetchData() }, [])
+    useEffect(() => { fetchData(true) }, [])
 
-    const fetchData = () => {
-        setLoading(true)
+    const fetchData = (initial = false) => {
+        if (initial) setLoading(true)
         Promise.all([
             fetch(API_BASE_URL + "/categories", { headers: authHeaders() }).then(r => r.json()),
             fetch(API_BASE_URL + "/questions", { headers: authHeaders() }).then(r => r.json())
         ]).then(([cats, qs]) => {
             setCategories(Array.isArray(cats) ? cats.sort((a, b) => a.name.localeCompare(b.name)) : [])
             setQuestions(Array.isArray(qs) ? qs : [])
-            setLoading(false)
+            if (initial) setLoading(false)
         })
     }
 
@@ -160,10 +161,10 @@ export default function AdminPanel() {
         : questions
 
     return (
-        <div style={{ minHeight: "100vh", background: "#080c16", padding: 24, color: "#e2e8f0", fontFamily: "monospace", position: "relative", overflow: "hidden" }}>
+        <div style={{ minHeight: "100vh", background: "#080c16", padding: 24, color: "#e2e8f0", fontFamily: "monospace", position: "relative", overflowX: "hidden" }}>
             <ParticlesBg />
             <div className="scanlines" />
-            <div style={{ position: "relative", zIndex: 2, maxWidth: 900, margin: "0 auto" }}>
+            <div style={{ position: "relative", maxWidth: 900, margin: "0 auto" }}>
 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
                     <h1 className="gradient-text" style={{ fontSize: 32, fontWeight: 900 }}>ADMIN PANEL</h1>
@@ -262,7 +263,7 @@ export default function AdminPanel() {
                 </div>
 
                 {/* ── QUESTIONS ── */}
-                <div style={{ background: "#0f172a", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 12, padding: 20, overflow: "hidden" }}>
+                <div style={{ background: "#0f172a", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 12, padding: 20 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 8 }}>
                         <h2 style={{ fontSize: 16, fontWeight: 700, color: "#8b5cf6" }}>QUESTIONS</h2>
                         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -270,7 +271,7 @@ export default function AdminPanel() {
                             <select
                                 value={selectedCategory || ""}
                                 onChange={e => setSelectedCategory(e.target.value ? Number(e.target.value) : null)}
-                                style={{ padding: "6px 12px", borderRadius: 8, background: "#1e293b", color: "#e2e8f0", border: "1px solid #334155", fontFamily: "monospace", fontSize: 12, maxWidth: 100 }}
+                                style={{ padding: "6px 12px", borderRadius: 8, background: "#1e293b", color: "#e2e8f0", border: "1px solid #334155", fontFamily: "monospace", fontSize: 12 }}
                             >
                                 <option value="">All Categories</option>
                                 {categories.map(cat => (
@@ -290,42 +291,38 @@ export default function AdminPanel() {
 
                     {/* ── Add Question Form ── */}
                     <div style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 8, padding: 16, marginBottom: 16 }}>
-                        <div style={{ display: "flex", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
-                            <div style={{ flex: 1 }}>
-                                <label style={{ display: "block", color: "#475569", fontSize: 10, marginBottom: 4, letterSpacing: 1 }}>CATEGORY</label>
-                                <select
-                                    value={newQuestion.category_id}
-                                    onChange={e => setNewQuestion({ ...newQuestion, category_id: e.target.value })}
-                                    style={{ width: "100%", padding: "8px 12px", borderRadius: 8, background: "#1e293b", color: "#e2e8f0", border: "1px solid #334155", fontFamily: "monospace" }}
-                                >
-                                    <option value="">Select category...</option>
-                                    {categories.map(cat => (
-                                        <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label style={{ display: "block", color: "#475569", fontSize: 10, marginBottom: 4, letterSpacing: 1 }}>DIFFICULTY</label>
-                                <select
-                                    value={newQuestion.difficulty}
-                                    onChange={e => setNewQuestion({ ...newQuestion, difficulty: e.target.value })}
-                                    style={{ padding: "8px 12px", borderRadius: 8, background: "#1e293b", color: "#e2e8f0", border: "1px solid #334155", fontFamily: "monospace" }}
-                                >
-                                    {[100, 200, 300, 400, 500].map(d => (
-                                        <option key={d} value={d}>${d}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label style={{ display: "block", color: "#475569", fontSize: 10, marginBottom: 4, letterSpacing: 1 }}>TIME (s)</label>
-                                <input
-                                    type="number"
-                                    value={newQuestion.time_limit}
-                                    onChange={e => setNewQuestion({ ...newQuestion, time_limit: e.target.value })}
-                                    style={{ width: 70, padding: "8px 12px", borderRadius: 8, background: "#1e293b", color: "#e2e8f0", border: "1px solid #334155", fontFamily: "monospace" }}
-                                />
-                            </div>
-                        </div>
+                        <div style={{ marginBottom: 8 }}>
+    <label style={{ display: "block", color: "#475569", fontSize: 10, marginBottom: 4, letterSpacing: 1 }}>CATEGORY</label>
+    <CustomSelect
+        value={newQuestion.category_id}
+        onChange={val => setNewQuestion({ ...newQuestion, category_id: val })}
+        placeholder="Select category..."
+        options={categories.map(cat => ({ value: cat.id, label: cat.name }))}
+    />
+</div>
+<div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+    <div>
+        <label style={{ display: "block", color: "#475569", fontSize: 10, marginBottom: 4, letterSpacing: 1 }}>DIFFICULTY</label>
+        <select
+            value={newQuestion.difficulty}
+            onChange={e => setNewQuestion({ ...newQuestion, difficulty: e.target.value })}
+            style={{ padding: "8px 12px", borderRadius: 8, background: "#1e293b", color: "#e2e8f0", border: "1px solid #334155", fontFamily: "monospace" }}
+        >
+            {[100, 200, 300, 400, 500].map(d => (
+                <option key={d} value={d}>${d}</option>
+            ))}
+        </select>
+    </div>
+    <div>
+        <label style={{ display: "block", color: "#475569", fontSize: 10, marginBottom: 4, letterSpacing: 1 }}>TIME (s)</label>
+        <input
+            type="number"
+            value={newQuestion.time_limit}
+            onChange={e => setNewQuestion({ ...newQuestion, time_limit: e.target.value })}
+            style={{ width: 70, padding: "8px 12px", borderRadius: 8, background: "#1e293b", color: "#e2e8f0", border: "1px solid #334155", fontFamily: "monospace" }}
+        />
+    </div>
+</div>
                         <textarea
                             value={newQuestion.question}
                             onChange={e => setNewQuestion({ ...newQuestion, question: e.target.value })}
