@@ -5,6 +5,7 @@ import Login from './components/Login'
 import Signup from './components/Signup'
 import ProtectedRoute from './components/ProtectedRoute'
 import { AuthProvider } from './context/AuthContext'
+import LandingPage from './components/LandingPage';
 
 function App() {
 
@@ -12,7 +13,8 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<JeopardyGame />} />
+          <Route path="/" element={
+            user ? <JeopardyGame /> : <LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/admin" element={
