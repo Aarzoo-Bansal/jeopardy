@@ -8,7 +8,7 @@ import { AuthProvider } from './context/AuthContext'
 import LandingPage from './components/LandingPage';
 
 function App() {
-
+  const { user } = useAuth();
   return (
     <BrowserRouter>
       <AuthProvider>
