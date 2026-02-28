@@ -36,10 +36,9 @@ export default function TeamsSetup({
                     <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
                         <button
                             onClick={() => window.location.href = '/admin'}
+                            className='btn-action'
                             style={{
-                                background: "#0b1a24",
                                 border: "1px solid rgba(6,182,212,0.3)",
-                                color: "#06b6d4",
                                 borderRadius: 8,
                                 padding: "8px 16px",
                                 cursor: "pointer",
@@ -106,10 +105,12 @@ export default function TeamsSetup({
 
                 <div style={{ display: "flex", gap: 10 }}>
                     <button onClick={onBack}
+                    className="btn-game"
                         style={{ flex: 1, padding: "14px 0", borderRadius: 12, border: "1px solid #334155", background: "transparent", color: "#94a3b8", fontSize: 16, fontWeight: 700, fontFamily: "monospace", cursor: "pointer" }}>
                         ← BACK
                     </button>
                     <button onClick={onStart} disabled={teams.length === 0}
+                    className='btn-primary'
                         style={{
                             flex: 2, padding: "14px 0", borderRadius: 12, border: "none",
                             cursor: teams.length === 0 ? "not-allowed" : "pointer",
@@ -125,3 +126,4 @@ export default function TeamsSetup({
         </div>
     )
 }
+

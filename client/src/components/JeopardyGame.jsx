@@ -224,19 +224,63 @@ export default function JeopardyGame() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
             <h1 className="gradient-text" style={{ fontSize: 28, fontWeight: 900, background: "linear-gradient(90deg,#06b6d4,#8b5cf6)" }}>{gameTitle || "JEOPARDY"}</h1>
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              <button onClick={() => setShowWheel(true)} className="btn-action" style={{ background: "rgba(139,92,246,0.12)", color: "#a78bfa", borderColor: "rgba(139,92,246,0.3)" }}>🎡 SPIN</button>
-              {currentTeam && (
-                <div style={{ background: "rgba(6,182,212,0.1)", border: "1px solid rgba(6,182,212,0.3)", borderRadius: 8, padding: "6px 14px", display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 20 }}>{currentTeam.avatar}</span>
-                  <span style={{ color: "#06b6d4", fontWeight: 700, fontSize: 13 }}>{currentTeam.name}'s Turn</span>
-                </div>
-              )}
-              <div style={{ background: "rgba(6,182,212,0.08)", border: "1px solid rgba(6,182,212,0.15)", borderRadius: 8, padding: "6px 12px", fontSize: 12, color: "#64748b" }}>
-                <span style={{ color: "#06b6d4", fontWeight: 700 }}>{answeredQ}</span>/{totalQ}
-              </div>
-              {gameComplete && <button onClick={showWinnerModal} className="btn-action" style={{ background: "rgba(251,191,36,0.12)", color: "#fbbf24", borderColor: "rgba(251,191,36,0.3)", animation: "pulse2 1s ease-in-out infinite" }}>🏆 WINNER</button>}
-              <button onClick={resetGame} className="btn-action" style={{ background: "rgba(239,68,68,0.1)", color: "#f87171", borderColor: "rgba(239,68,68,0.25)" }}>RESET</button>
-            </div>
+
+    {/* SPIN */}
+    <button onClick={() => setShowWheel(true)}
+        className="btn-game"
+        style={{ background: "#19023f", color: "#a78bfa", borderColor: "#6d28d9", height: 36, display: "flex", alignItems: "center", gap: 6 }}>
+        🎡 SPIN
+    </button>
+
+    {/* Current Team */}
+    {currentTeam && (
+        <div style={{
+            background: "#012026",
+            border: "1px solid #06b6d4",
+            borderRadius: 8,
+            height: 36,
+            padding: "0 14px",
+            display: "flex",
+            alignItems: "center",
+            gap: 8
+        }}>
+            <span style={{ fontSize: 16 }}>{currentTeam.avatar}</span>
+            <span style={{ color: "#06b6d4", fontWeight: 700, fontSize: 13 }}>{currentTeam.name}'s Turn</span>
+        </div>
+    )}
+
+    {/* Score counter */}
+    <div style={{
+        background: "#012026",
+        border: "1px solid #06b6d4",
+        borderRadius: 8,
+        height: 36,
+        padding: "0 12px",
+        display: "flex",
+        alignItems: "center",
+        fontSize: 12,
+        color: "#64748b"
+    }}>
+        <span style={{ color: "#06b6d4", fontWeight: 700 }}>{answeredQ}</span>/{totalQ}
+    </div>
+
+    {/* WINNER */}
+    {gameComplete && (
+        <button onClick={showWinnerModal}
+            className="btn-game"
+            style={{ background: "#4c1c02", color: "#fbbf24", borderColor: "#d97706", height: 36, animation: "pulse2 1s ease-in-out infinite" }}>
+            🏆 WINNER
+        </button>
+    )}
+
+    {/* RESET */}
+    <button onClick={resetGame}
+        className="btn-game"
+        style={{ background: "#3c0202", color: "#ef4444", borderColor: "#dc2626", height: 36 }}>
+        RESET
+    </button>
+
+</div>
           </div>
 
           <div style={{ background: "linear-gradient(145deg,rgba(15,23,42,0.6),rgba(30,41,59,0.4))", border: "1px solid rgba(139,92,246,0.15)", borderRadius: 16, padding: 16, backdropFilter: "blur(10px)", overflowX: "auto" }}>
@@ -283,7 +327,7 @@ export default function JeopardyGame() {
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
             <span style={{ fontSize: 14, fontWeight: 700, color: "#06b6d4" }}>SCOREBOARD</span>
-            {teamsPlayedThisRound.length > 0 && <button onClick={resetRound} className="btn-action" style={{ fontSize: 11, padding: "4px 12px", background: "rgba(249,115,22,0.1)", color: "#fb923c", borderColor: "rgba(249,115,22,0.3)" }}>🔄 RESET ROUND</button>}
+            {teamsPlayedThisRound.length > 0 && <button onClick={resetRound} className="btn-game" style={{ fontSize: 11, padding: "4px 12px", background: "rgba(249,115,22,0.1)", color: "#fb923c", borderColor: "rgba(249,115,22,0.3)" }}>🔄 RESET ROUND</button>}
           </div>
           <div style={{ overflowX: "auto" }}>
             <div style={{ display: "flex", gap: 12, paddingBottom: 8 }}>
@@ -305,10 +349,10 @@ export default function JeopardyGame() {
                       </div>
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 4 }}>
-                      {selectedDifficulties.map(p => (<button key={p} onClick={() => updateScore(i, p)} style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.25)", color: "#10b981", fontSize: 10, fontWeight: 700, padding: "6px 0", borderRadius: 6, cursor: "pointer", fontFamily: "monospace", transition: "all 0.15s" }}>+{p}</button>))}
+                      {selectedDifficulties.map(p => (<button key={p} onClick={() => updateScore(i, p)} className='btn-game' style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.25)", color: "#10b981", fontSize: 10, fontWeight: 700, padding: "6px 0", borderRadius: 6, cursor: "pointer", fontFamily: "monospace", transition: "all 0.15s" }}>+{p}</button>))}
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 4, marginTop: 4 }}>
-                      {selectedDifficulties.map(p => (<button key={"m" + p} onClick={() => updateScore(i, -p)} style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#ef4444", fontSize: 10, fontWeight: 700, padding: "6px 0", borderRadius: 6, cursor: "pointer", fontFamily: "monospace", transition: "all 0.15s" }}>-{p}</button>))}
+                      {selectedDifficulties.map(p => (<button key={"m" + p} onClick={() => updateScore(i, -p)} className='btn-game' style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#ef4444", fontSize: 10, fontWeight: 700, padding: "6px 0", borderRadius: 6, cursor: "pointer", fontFamily: "monospace", transition: "all 0.15s" }}>-{p}</button>))}
                     </div>
                   </div>
                 );

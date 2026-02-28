@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import ParticlesBg from './ParticlesBg'
 import { useAuth } from '../context/AuthContext'
+import { useNavigate } from 'react-router-dom';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL
 
 export default function AdminPanel() {
     const { authHeaders, logout } = useAuth()
+    const navigate = useNavigate()
     const [categories, setCategories] = useState([])
     const [questions, setQuestions] = useState([])
     const [loading, setLoading] = useState(true)
@@ -166,15 +168,18 @@ export default function AdminPanel() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
                     <h1 className="gradient-text" style={{ fontSize: 32, fontWeight: 900 }}>ADMIN PANEL</h1>
                     <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                        <a href="/" className="admin-link">← Back to Game</a>
+                        <button
+                            onClick={() => navigate('/')}
+                            className="btn-action"
+                        >
+                            ← Back to Game
+                        </button>
                         <button
                             onClick={logout}
+                            className="btn-delete"
                             style={{
                                 padding: "8px 16px",
-                                background: "rgba(239,68,68,0.1)",
-                                border: "1px solid rgba(239,68,68,0.3)",
                                 borderRadius: 8,
-                                color: "#ef4444",
                                 cursor: "pointer",
                                 fontFamily: "monospace",
                                 fontSize: 12,
@@ -242,9 +247,10 @@ export default function AdminPanel() {
                                         </>
                                     ) : (
                                         <>
-                                            <button onMouseDown={(e) => {
-                                                e.preventDefault()
-                                                setTimeout(() => { setEditingCategory(cat.id); setEditCategoryName(cat.name) }, 0)
+                                            <button onClick={() => {
+
+                                                setEditingCategory(cat.id);
+                                                setEditCategoryName(cat.name);
                                             }} className="btn-edit">EDIT</button>
                                             <button onClick={() => deleteCategory(cat.id, cat.name)} className="btn-delete">DELETE</button>
                                         </>

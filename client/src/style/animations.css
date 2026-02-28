@@ -156,7 +156,7 @@
 }   
 
 .btn-action{
-    background:rgba(6,182,212,0.12);
+    background:#080c16;
     color:#06b6d4;
     border:1px solid rgba(6,182,212,0.3);
     font-weight:700;
@@ -463,4 +463,87 @@
     border-color: #8b5cf6;
     outline: none;
     box-shadow: 0 0 12px rgba(139,92,246,0.1);
+}
+
+.btn-cyan {
+    background: rgba(6,182,212,0.1);
+    border: 1px solid rgba(6,182,212,0.3);
+    color: #06b6d4;
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-family: monospace;
+    font-size: 11px;
+    font-weight: 700;
+    transition: all 0.2s;
+}
+
+.btn-cyan:hover {
+    background: #06b6d4;
+    color: #0f172a;
+    transform: translateY(-1px);
+}
+
+.btn-grey {
+    background: rgba(100,116,139,0.1);
+    border: 1px solid rgba(100,116,139,0.3);
+    color: #94a3b8;
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-family: monospace;
+    font-size: 11px;
+    font-weight: 700;
+    transition: all 0.2s;
+}
+
+.btn-grey:hover {
+    background: #94a3b8;
+    color: #0f172a;
+    transform: translateY(-1px);
+}
+
+.btn-purple {
+    background: rgba(139,92,246,0.1);
+    border: 2px solid rgba(139,92,246,0.3);
+    color: #8b5cf6;
+    border-radius: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-family: monospace;
+    font-size: 16px;
+    font-weight: 800;
+    transition: all 0.15s;
+}
+
+.btn-purple:hover {
+    background: rgba(139,92,246,0.25);
+    border-color: #8b5cf6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(139,92,246,0.3);
+}
+
+.btn-purple.selected {
+    background: rgba(139,92,246,0.15);
+    border-color: #8b5cf6;
+    color: #8b5cf6;
+}
+
+.btn-game {
+    background: rgba(6,182,212,0.12);
+    color: #06b6d4;
+    border: 1px solid rgba(6,182,212,0.3);
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: monospace;
+    font-size: 13px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-game:hover {
+    filter: brightness(1.3);
+    box-shadow: 0 0 16px currentColor;
 }

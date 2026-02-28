@@ -21,10 +21,9 @@ export default function GameConfig({
                     <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
                         <button
                             onClick={() => window.location.href = '/admin'}
+                            className='btn-action'
                             style={{
-                                background: "#0b1a24",
                                 border: "1px solid rgba(6,182,212,0.3)",
-                                color: "#06b6d4",
                                 borderRadius: 8,
                                 padding: "8px 16px",
                                 cursor: "pointer",
@@ -77,11 +76,11 @@ export default function GameConfig({
                         </div>
                         <div style={{ display: "flex", gap: 6 }}>
                             <button onClick={() => setSelectedCategories(categories.map(c => c))}
-                                style={{ background: "rgba(6,182,212,0.1)", border: "1px solid rgba(6,182,212,0.3)", color: "#06b6d4", borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontFamily: "monospace", fontSize: 11 }}>
+                                className='btn-cyan'>
                                 SELECT ALL
                             </button>
                             <button onClick={() => setSelectedCategories([])}
-                                style={{ background: "rgba(100,116,139,0.1)", border: "1px solid rgba(100,116,139,0.3)", color: "#94a3b8", borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontFamily: "monospace", fontSize: 11 }}>
+                                className='btn-grey'>
                                 CLEAR
                             </button>
                         </div>
@@ -171,6 +170,7 @@ export default function GameConfig({
                                         color: isSelected ? "#8b5cf6" : "#475569",
                                         transition: "all 0.15s"
                                     }}
+                                    className={`btn-purple ${isSelected ? 'selected' : ''}`}
                                 >
                                     ${d}
                                 </button>
@@ -201,6 +201,7 @@ export default function GameConfig({
 
                 <button onClick={onNext}
                     disabled={selectedCategories.length === 0 || selectedDifficulties.length === 0}
+                    className="btn-primary"
                     style={{
                         width: "100%", padding: "14px 0", borderRadius: 12, border: "none",
                         cursor: selectedCategories.length === 0 || selectedDifficulties.length === 0 ? "not-allowed" : "pointer",
