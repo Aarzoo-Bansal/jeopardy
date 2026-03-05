@@ -67,8 +67,9 @@ router.post('/register', async (req, res) => {
             }
         });
     } catch (err) {
+        console.error(err)
         res.status(500).json({
-            error: err.message
+            error: "Internal Server Error"
         });
     }
 });
@@ -128,8 +129,9 @@ router.post('/login', async (req, res) => {
             }
         });
     } catch (err) {
+        console.error(err)
         res.status(500).json({
-            error: err.message
+            error: "Internal Server Error"
         });
     }
 });

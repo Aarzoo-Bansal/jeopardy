@@ -1,12 +1,12 @@
-const pool = require('../config/db')
-const express = require('express')
-const router = express.Router()
+const pool = require('../config/db');
+const express = require('express');
+const router = express.Router();
 const verifyToken = require('../middleware/auth');
 
 const DIFFICULTIES = [100, 200, 300, 400, 500]
 
 // GET /api/questions - Returns all questions with category name
-router.get('/', verifyToken,  async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT q.id, q.category_id, c.name AS category_name, q.difficulty, q.question, q.answer, q.time_limit
@@ -19,8 +19,9 @@ router.get('/', verifyToken,  async (req, res) => {
 
         res.json(result.rows)
     } catch (err) {
+        console.error(err);
         res.status(500).json({
-            error: err.message
+            error: "Internal Server Error"
         });
     }
 });
@@ -46,15 +47,15 @@ router.post('/', verifyToken, async (req, res) => {
         const category = await pool.query(
             'SELECT id FROM categories WHERE id = $1 AND user_id = $2',
             [category_id, req.user.userId]
-            );
-        
+        );
+
         if (category.rows.length === 0) {
-            return res.status(403).json({
-                error: 'Not authorized'
+            return res.status(404).json({
+                error: 'Not found'
             });
         }
 
-        const result = await pool.query (
+        const result = await pool.query(
             `INSERT INTO questions (category_id, difficulty, question, answer, time_limit, user_id)
             VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING id, category_id, difficulty, question, answer, time_limit`,
@@ -63,26 +64,32 @@ router.post('/', verifyToken, async (req, res) => {
 
         res.status(201).json(result.rows[0]);
     } catch (err) {
+        console.error(err);
         res.status(500).json({
-            error: err.message
+            error: "Internal Server Error"
         });
     }
 });
 
 // PUT /api/questions/:id - Update a question
 router.put('/:id', verifyToken, async (req, res) => {
-    const { id } = req.params;
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id) || id < 1 || id !== Number(req.params.id)) {
+        return res.status(400).json({ error: 'Invalid ID' });
+    }
     const { category_id, difficulty, question, answer, time_limit } = req.body;
+
+    // Checking if the difficulty passed is in the allowed values
+    if (difficulty !== undefined && !DIFFICULTIES.includes(Number(difficulty))) {
+        return res.status(400).json({
+            error: 'Difficulty must be 100, 200, 300, 400, or 500'
+        })
+    }
 
     // Build only the fields that were sent
     const fields = [];
     const values = [];
     let counter = 1;
-
-    if (category_id !== undefined) {
-        fields.push(`category_id = $${counter++}`);
-        values.push(category_id);
-    }
 
     if (difficulty !== undefined) {
         fields.push(`difficulty = $${counter++}`);
@@ -115,27 +122,31 @@ router.put('/:id', verifyToken, async (req, res) => {
 
     try {
         const result = await pool.query(
-        `UPDATE questions SET ${fields.join(', ')} WHERE id = $${counter} AND user_id = $${counter + 1} RETURNING id`,
-        values
+            `UPDATE questions SET ${fields.join(', ')} WHERE id = $${counter} AND user_id = $${counter + 1} RETURNING id`,
+            values
         );
 
         if (result.rows.length === 0) {
-            return res.status(403).json({
-                error: 'Not authorized'
+            return res.status(404).json({
+                error: 'Not found'
             });
         }
 
         res.json(result.rows[0]);
     } catch (err) {
+        console.error(err);
         res.status(500).json({
-            error: err.message
-        });    
+            error: "Internal Server Error"
+        });
     }
 });
 
 // DELETE /api/questions/:id - Delete a question
 router.delete('/:id', verifyToken, async (req, res) => {
-    const { id } = req.params;
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id) || id < 1 || id !== Number(req.params.id)) {
+        return res.status(400).json({ error: 'Invalid ID' });
+    }
 
     try {
         const result = await pool.query(
@@ -144,15 +155,16 @@ router.delete('/:id', verifyToken, async (req, res) => {
         );
 
         if (result.rows.length === 0) {
-            return res.status(403).json({
-                error: 'Not authorized'
+            return res.status(404).json({
+                error: 'Not found'
             });
         }
 
         res.status(204).send();
     } catch (err) {
+        console.error(err);
         res.status(500).json({
-            error: err.message
+            error: "Internal Server Error"
         });
     }
 });

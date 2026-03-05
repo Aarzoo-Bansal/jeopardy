@@ -12,8 +12,9 @@ router.get('/', verifyToken, async (req, res) => {
         );
         res.json(result.rows);
     } catch (err) {
+        console.error(err);
         res.status(500).json({
-            error: err.message
+            error: "Internal Server Error"
         });
     }
 });
@@ -41,9 +42,9 @@ router.post('/', verifyToken, async (req, res) => {
                 error: 'Category already exists'
             })
         }
-
+        console.error(err);
         res.status(500).json({
-            error: err.message
+            error: "Internal Server Error"
         });
     }
 });
@@ -51,7 +52,10 @@ router.post('/', verifyToken, async (req, res) => {
 // PUT /api/categories/:id - Update a category
 router.put('/:id', verifyToken, async (req, res) => {
     const { name } = req.body;
-    const { id } = req.params;
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id) || id < 1 || id !== Number(req.params.id)) {
+        return res.status(400).json({ error: 'Invalid ID' });
+    }
 
     if (!name || !name.trim()) {
         return res.status(400).json({
@@ -66,22 +70,26 @@ router.put('/:id', verifyToken, async (req, res) => {
         );
 
         if (result.rows.length === 0) {
-            return res.status(403).json({
-                error: 'Not authorized'
+            return res.status(404).json({
+                error: 'Not Found'
             });
         }
 
         return res.json(result.rows[0]);
     } catch (err) {
+        console.error(err);
         return res.status(500).json({
-            error: err.message
+            error: "Internal Server Error"
         });
     }
 });
 
 // DELETE /api/categories/:id - Delete a category
 router.delete('/:id', verifyToken, async (req, res) => {
-    const { id } = req.params;
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id) || id < 1 || id !== Number(req.params.id)) {
+        return res.status(400).json({ error: 'Invalid ID' });
+    }
 
     try {
         const result = await pool.query(
@@ -90,15 +98,16 @@ router.delete('/:id', verifyToken, async (req, res) => {
         );
 
         if (result.rows.length === 0) {
-            return res.status(403).json({
-                error: 'Not authorized'
+            return res.status(404).json({
+                error: 'Not Found'
             });
         }
 
         res.status(204).send();
     } catch (err) {
+        console.error(err);
         res.status(500).json({
-            error: err.message
+            error: "Internal Server Error"
         });
     }
 });
