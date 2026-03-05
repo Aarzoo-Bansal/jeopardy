@@ -3,10 +3,26 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
+const rateLimit = require('express-rate-limit');
 const SALTROUNDS = 10;
 
+const baseConfig  = {
+    windowMs: 15 * 60 * 1000,
+    message: { error: 'Too many requests. Please try again later'}
+};
+
+const registerLimiter = rateLimit({
+    ...baseConfig,
+    max: 10 // maximum 10 attemps
+});
+
+const loginLimiter = rateLimit({
+    ...baseConfig,
+    max: 5
+});
+
 // POST /api/auth/register - Create a new account
-router.post('/register', async (req, res) => {
+router.post('/register', registerLimiter, async (req, res) => {
     const { email, password } = req.body;
 
     // Validate Input
@@ -75,7 +91,7 @@ router.post('/register', async (req, res) => {
 });
 
 // POST /api/auth/login - Log into existing account
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
     const { email, password } = req.body;
 
     // Validate Input
